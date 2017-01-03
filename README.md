@@ -14,20 +14,22 @@ Add `nixler/wikidata` to your `composer.json`.
 
 Run `composer update` to pull down the latest version of the package.
 
-Now open up `app/config/app.php` and add the service provider to your `providers` array.
+Next, you should add the WikidataServiceProvider to the providers array of your config/app.php configuration file:
 
 ```php
-'providers' => array(
-	Nixler\Wikidata\WikidataServiceProvider::class,
-)
+Nixler\Wikidata\WikidataServiceProvider::class,
 ```
 
-## Configuration
-### For Laravel 5
-Run `php artisan vendor:publish --provider="Nixler\Wikidata\WikidataServiceProvider"` and set your API key in the file:
+Also, add the Wikidata facade to the aliases array in your app configuration file:
+
+```php
+'Wikidata' => Nixler\Wikidata\WikidataServiceProvider::class,
+```
+
+After registering the Wikidata service provider, you should publish the Wikidata configuration using the  vendor:publish Artisan command. This command will publish the wikidata.php configuration file to your config directory:
 
 ```
-/app/config/wikidata.php
+php artisan vendor:publish --provider="Nixler\Wikidata\WikidataServiceProvider"
 ```
 
 
