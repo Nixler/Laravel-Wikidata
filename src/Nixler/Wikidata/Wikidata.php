@@ -178,7 +178,7 @@ class Wikidata
         $this->locales = func_get_args();
 
         if(!count($this->locales)){
-            $this->locales = [config('app.locale')];
+            $this->locales = config('wikidata.locales');
         }
 
         return $this;
