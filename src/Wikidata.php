@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services\Wikidata;
+namespace Nixler\Wikidata;
 
-use GuzzleHttp;
-use App\Services\Wikidata\SPARQL;
+use GuzzleHttp\Client as GuzzleClient;
+use Nixler\Wikidata\SPARQL;
 
 class Wikidata
 
@@ -72,7 +72,7 @@ class Wikidata
 
         $url = $this->apiUrl($query);
 
-        $client = new \GuzzleHttp\Client();
+        $client = new GuzzleClient();
 
         $data = json_decode(($client->request('GET', $url))->getBody(), true);
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\Wikidata;
+namespace Nixler\Wikidata;
 
-use GuzzleHttp;
+use GuzzleHttp\Client as GuzzleClient;
 
 class SPARQL
 
@@ -58,7 +58,7 @@ class SPARQL
     	];
 
     	$url = sprintf('https://query.wikidata.org/sparql?%s', http_build_query($params));
-    	$client = new \GuzzleHttp\Client();
+    	$client = new GuzzleClient();
 
     	return $data = json_decode(($client->request('GET', $url))->getBody(), true);
 

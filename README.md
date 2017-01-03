@@ -18,13 +18,13 @@ Now open up `app/config/app.php` and add the service provider to your `providers
 
 ```php
 'providers' => array(
-	'Nixler\Wikidata\YoutubeServiceProvider',
+	Nixler\Wikidata\WikidataServiceProvider::class,
 )
 ```
 
 ## Configuration
 ### For Laravel 5
-Run `php artisan vendor:publish --provider="Nixler\Wikidata\YoutubeServiceProvider"` and set your API key in the file:
+Run `php artisan vendor:publish --provider="Nixler\Wikidata\WikidataServiceProvider"` and set your API key in the file:
 
 ```
 /app/config/wikidata.php

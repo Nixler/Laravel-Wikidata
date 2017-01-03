@@ -32,7 +32,7 @@ class WikidataServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->publishes(array(__DIR__ . '/../../config/wikidata.php' => config_path('wikidata.php')));
+        $this->publishes(array(__DIR__ . '/config/wikidata.php' => config_path('wikidata.php')));
 
         //Laravel 5.1+ fix
         if(floatval(Application::VERSION) >= 5.1){
