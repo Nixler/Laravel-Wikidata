@@ -18,7 +18,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Nixler\\Wikidata\\": "src/"
+      "Nixler\\Wikidata\\": "src"
     }
   },
   "minimum-stability": "dev"
