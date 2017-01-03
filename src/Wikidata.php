@@ -4,6 +4,7 @@ namespace Nixler\Wikidata;
 
 use GuzzleHttp\Client as GuzzleClient;
 use Nixler\Wikidata\SPARQL;
+use Nixler\Wikidata\Wikipedia;
 
 class Wikidata
 
@@ -32,7 +33,7 @@ class Wikidata
         $props = ['labels', 'descriptions', 'aliases', 'claims', 'sitelinks'];
 
         if(!count($this->locales)){
-            $this->languages(array_get($query, 'locales', []));
+            $this->languages(array_get($query, 'locales'));
         }
 
         if(!count($this->ids)){
@@ -115,7 +116,7 @@ class Wikidata
 
                         $photos[] = [
                             'path' => $value,
-                            'url' => $this->wikiImageParse($value),
+                            'url' => (new Wikipedia)->image($value),
                             'prop' => $prop
                         ];
                     }
@@ -136,32 +137,6 @@ class Wikidata
     }
 
 
-
-
-
-
-    /**
-     * Generate image url based on path
-     *
-     * @param string $path
-     *
-      * @return string
-     */ 
-
-    public function wikiImageParse($path) { 
-
-        if(!$path) return null;
-
-           $name = str_replace(" ","_",$path);
-           $md5 = md5($name);
-           $url = 'https://upload.wikimedia.org/wikipedia/commons/'.str_limit($md5,1,false).'/'.str_limit($md5,2,false).'/'.$name;
-           $ext = pathinfo($url, PATHINFO_EXTENSION);
-           if($ext == 'svg'){ 
-               $url = str_replace('commons/', 'commons/thumb/', $url.'/1200px-'.$name.'.png');
-           }
-
-           return $url;
-    }
 
 
 
