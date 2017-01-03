@@ -20,6 +20,16 @@ class Wikidata
 
     private $search;
 
+    public function __construct(){
+
+        foreach (get_class_vars(get_class($this)) as $name => $default) 
+        {
+            $this->$name = $default;
+        }
+        
+    }
+
+
     /**
      * Build URL for API call
      *
