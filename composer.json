@@ -1,0 +1,24 @@
+{
+  "name": "nixler/wikidata",
+  "description": "Laravel PHP Facade/Wrapper for the Wikidata Data API",
+  "keywords": ["laravel", "wikidata", "php", "nixler"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Giorgi Chumburidze",
+      "email": "chumburidze.giorgi@outlook.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.3.0"
+  },
+  "require-dev":{
+    "phpunit/phpunit": "3.7.*@stable"
+  },
+  "autoload": {
+    "psr-0": {
+      "Nixler\\Wikidata\\": "src/"
+    }
+  },
+  "minimum-stability": "dev"
+}
