@@ -20,16 +20,6 @@ class Wikidata
 
     private $search;
 
-    public function __construct(){
-
-        foreach (get_class_vars(get_class($this)) as $name => $default) 
-        {
-            $this->$name = $default;
-        }
-        
-    }
-
-
     /**
      * Build URL for API call
      *
@@ -160,7 +150,7 @@ class Wikidata
 
     public function languages(){
 
-        $this->locales = func_get_args();
+        $this->locales = array_filter(func_get_args());
 
         if(!count($this->locales)){
             $this->locales = config('wikidata.locales');
@@ -330,6 +320,10 @@ class Wikidata
                 $entity['description'] = isset($item['description']) ? $item['description'] : $this->localeMatch($item['descriptions']);
             }
 
+            if(isset($item['wiki']) || isset($item['wikis'])){
+                $entity['wiki'] = $this->parseWikis($this->groupLinks($item['sitelinks']), $this->locales);
+            }
+
             if(isset($item['aliases'])){
                 $entity['aliases'] = $this->localeMatch($item['aliases']);
             }
@@ -478,6 +472,32 @@ class Wikidata
 
 
     /**
+     * Group site links
+     *
+     * @param string $query['id']
+     *
+     * @return string
+     */ 
+
+    private function parseWikis($links, $locales){
+
+        $wikiLinks = array_get($links, 'wiki', []);
+        $wikis = [];
+
+        foreach ($wikiLinks as $key => $value) {
+            if(in_array($key, $locales)){
+                $wikis[] = (new Wikipedia)->api($key, $value);
+            }
+        }
+
+        return $wikis;
+
+    }
+
+
+
+
+    /**
      * @param string $query['id']
      *
      * @return string
@@ -497,9 +517,9 @@ class Wikidata
             foreach ($claims as $claim) {
                 
                 if(isset($claim['mainsnak']) 
-                    || isset($claim['mainsnak']['datatype'])
-                    || isset($claim['mainsnak']['snaktype'])
-                    || isset($claim['mainsnak']['datavalue'])){
+                    && isset($claim['mainsnak']['datatype'])
+                    && isset($claim['mainsnak']['snaktype'])
+                    && isset($claim['mainsnak']['datavalue'])){
 
                     $value = null;
                     $type = $claim['mainsnak']['datatype'];

@@ -7,12 +7,6 @@ use Illuminate\Support\ServiceProvider;
 
 class WikidataServiceProvider extends ServiceProvider
 {
-    /**
-     * Indicates if loading of the provider is deferred.
-     *
-     * @var bool
-     */
-    protected $defer = false;
 
     /**
      * Bootstrap the application events.
@@ -37,11 +31,11 @@ class WikidataServiceProvider extends ServiceProvider
         //Laravel 5.1+ fix
         if(floatval(Application::VERSION) >= 5.1){
             $this->app->bind("wikidata", function(){
-                return $this->app->make('Nixler\Wikidata\Wikidata', [config('wikidata.KEY')]);
+                return new Wikidata;
             });
         }else{
             $this->app->bindShared('wikidata', function () {
-                return $this->app->make('Nixler\Wikidata\Wikidata', [config('wikidata.KEY')]);
+                return new Wikidata;
             });
         }
     }
