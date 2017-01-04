@@ -46,7 +46,7 @@ $laravel = Wikidata::whereId('Q13634357')->languages('en', 'ru')->get();
 
 //Select Clause
 $laravel = Wikidata::select('id', 'label')->whereId('Q13634357')->first();
-//available attributes id, label, description, type, aliases, sitelinks, claims, photos
+//available attributes id, label, description, wiki, type, aliases, sitelinks, claims, photos
 
 //Search By Query
 $search = Wikidata::search('Adele')->get();
