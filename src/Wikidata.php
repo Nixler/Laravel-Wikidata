@@ -296,6 +296,10 @@ class Wikidata
             $this->withPhotos();
         }
 
+        if($this->select && in_array('wiki', $this->select)){
+            $this->withWikis();
+        }
+
         foreach ($this->entities as $key => $item) {
 
             if($this->select){
@@ -321,7 +325,7 @@ class Wikidata
             }
 
             if(isset($item['wiki']) || isset($item['wikis'])){
-                $entity['wiki'] = $this->parseWikis($this->groupLinks($item['sitelinks']), $this->locales);
+                $entity['wiki'] = $this->parseWikis($item['wikis']);
             }
 
             if(isset($item['aliases'])){
@@ -479,18 +483,59 @@ class Wikidata
      * @return string
      */ 
 
-    private function parseWikis($links, $locales){
+    public function withWikis(){
 
-        $wikiLinks = array_get($links, 'wiki', []);
-        $wikis = [];
+        $output = [];
 
-        foreach ($wikiLinks as $key => $value) {
-            if(in_array($key, $locales)){
-                $wikis[] = (new Wikipedia)->api($key, $value);
+        foreach ($this->entities as $key => $entity) {
+
+            $wikiLinks = array_get($this->groupLinks($entity['sitelinks']), 'wiki', []);
+            $wikis = [];
+
+            foreach ($wikiLinks as $key => $value) {
+                if(in_array($key, $this->locales)){
+                    $wikis[] = (new Wikipedia)->api($key, $value);
+                }
             }
-        }
 
-        return $wikis;
+            $entity['wikis'] = $wikis;
+
+            $output[] = $entity;
+
+        }
+        
+        $this->entities = $output;
+
+        return $this;
+
+    }
+
+
+
+
+    /**
+     * Group site links
+     *
+     * @param string $query['id']
+     *
+     * @return string
+     */ 
+
+    public function parseWikis($wikis){
+
+        $output = [];
+
+        foreach ($wikis as $wiki) {
+
+            $output[$wiki['locale']] = $wiki['text'];
+
+        }
+        
+        if(count($this->locales) > 1){
+            return $output;
+        } else {
+            return array_first($output);
+        }
 
     }
 

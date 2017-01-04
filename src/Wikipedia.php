@@ -9,7 +9,7 @@ class Wikipedia
 {
 
 
-	/**
+    /**
      * Build URL for API call
      *
      * @param array $query
@@ -45,7 +45,7 @@ class Wikipedia
 
     public function api($locale, $title){
 
-        $url = $this->buildURL($locale, $title);
+        $url = $this->apiUrl($locale, $title);
 
         $client = new \GuzzleHttp\Client();
 
@@ -56,7 +56,7 @@ class Wikipedia
         $title = array_get($request, 'title');
         $text = array_get($request, 'extract');
         $source = sprintf('http://%s.wikipedia.org/%s', $locale, $title);
-        $image = $this->wikiImageParse(array_get($request, 'pageimage'));
+        $image = $this->image(array_get($request, 'pageimage'));
 
         return compact('title', 'text', 'image', 'source', 'locale');
 
