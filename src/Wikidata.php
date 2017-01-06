@@ -38,6 +38,10 @@ class Wikidata
             $this->languages(array_get($query, 'locales'));
         }
 
+        if(!count($this->select)){
+            $this->select(array_get($query, 'select'));
+        }
+
         if(!count($this->ids)){
             $this->whereID(array_get($query, 'ids', []));
         }
@@ -164,8 +168,12 @@ class Wikidata
 
     public function select(){
 
-        $args = func_get_args();
+        $args = array_filter(func_get_args());
         $params = [];
+
+        if(empty($args)){
+            $args = ['id', 'label', 'description', 'claims', 'sitelinks', 'aliases'];
+        }
 
         foreach ($args as $key => $value) {
             $params[] = str_singular($value);
@@ -229,7 +237,7 @@ class Wikidata
             $this->api([]);
         }
 
-        foreach ($this->entities as $key => $item) {
+        foreach ($this->entities as $item) {
 
             $entity = new Entity($item, $this->select, $this->locales);
             $entities[] = $entity->get();
