@@ -99,7 +99,13 @@ class Wikidata
 
     public function languages(){
 
-        $this->locales = array_filter(func_get_args());
+        $locales = array_filter(func_get_args());
+
+        if(count($locales) == 1 && is_array(array_first($locales))){
+            $locales = array_first($locales);
+        }
+
+        $this->locales = $locales;
 
         if(!count($this->locales)){
             $this->locales = config('wikidata.locales');
