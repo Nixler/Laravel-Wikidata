@@ -25,48 +25,68 @@ class Entity
 
     private $photos = null;
 
-    private $visible = null;
+    private $visible = [];
 
     private $locales = [];
 
 
-    public function __construct(array $data = [], array $visible = ['*'], array $locales = [], )
+    public function __construct(array $data = [], array $visible = ['*'], array $locales = [])
     {
-    	$instance = new static;
 
-        $instance->fill($data);
+        $this->makeVisible($visible);
 
-        $instance->makeVisible($visible);
+        $this->withLocales($locales);
 
-    	$instance->withLocales($locales);
+        $this->fill($data);
+
+        return $this;
 
     }
 
+
+
+    /**
+     * Fill model with data
+     *
+     * @param array $data
+     *
+     * @return void
+     */ 
 
     public function fill($data){
 
-    	$this->id = array_get($data, 'id');
+        $this->id = array_get($data, 'id');
 
-    	$this->type = array_get($data, 'type');
+        $this->type = array_get($data, 'type');
 
-    	$this->label = $this->localeMatch(array_get($data, 'label', []));
+        $this->label = $this->localeMatch(array_get($data, 'labels', []));
 
-    	$this->alias = $this->localeMatch(array_get($data, 'alias', []));
+        $this->alias = $this->localeMatch(array_get($data, 'aliases', []));
 
-    	$this->description = $this->localeMatch(array_get($data, 'description', []));
+        $this->description = $this->localeMatch(array_get($data, 'descriptions', []));
 
-    	$this->sitelinks = $this->parseLinks(array_get($data, 'sitelinks', []));
+        $this->sitelinks = $this->parseLinks(array_get($data, 'sitelinks', []));
 
-    	$this->wikiOriginal = $this->parseWikis($this->sitelinks);
+        $this->wikiOriginal = $this->parseWikis($this->sitelinks);
 
-    	$this->wiki = $this->transformWikis();
+        $this->wiki = $this->transformWikis();
 
-    	$this->claims = $this->transformClaims(array_get($data, 'claims', []));
+        $this->claims = $this->transformClaims(array_get($data, 'claims', []));
 
-    	$this->photos = $this->parsePhotos();
+        $this->photos = $this->parsePhotos();
 
     }
 
+
+
+
+    /**
+     * Match text with its locale and return key value array
+     *
+     * @param array $input
+     *
+     * @return array
+     */ 
 
     private function localeMatch($input){
 
@@ -105,58 +125,57 @@ class Entity
     }
 
 
+
     /**
      * Group site links
      *
      * @param array $links
      *
-     * @return object
+     * @return array
      */ 
 
     private function parseLinks($links = array()){
 
-       	$sites = ['wikinews', 'wiki', 'wikiquote'];
+        $sites = ['wikinews', 'wiki', 'wikiquote'];
 
-       	$parsed = [];
+        $parsed = [];
 
-	    foreach ($links as $key => $value) {
-	           
-	        foreach ($sites as $site) {
-	               
-	            if(ends_with($value['site'], $site)){
+        foreach ($links as $key => $value) {
+               
+            foreach ($sites as $site) {
+                   
+                if(ends_with($value['site'], $site)){
 
-	                 $locale = str_replace($site, '', $value['site']);
+                     $locale = str_replace($site, '', $value['site']);
 
-	                 $parsed[$site][$locale] = $value['title'];
+                     $parsed[$site][$locale] = $value['title'];
 
-	            }
+                }
 
-	        }
+            }
 
-	    }
+        }
 
-       	return $parsed;
+        return $parsed;
 
     }
 
 
     /**
-     * Group site links
+     * Parse wikipedia articles
      *
-     * @param array $links
-     *
-     * @return object
+     * @return array
      */ 
 
     private function parseWikis(){
 
-    	$wikiLinks = array_get($this->sitelinks, 'wiki');
+        $wikiLinks = array_get($this->sitelinks, 'wiki');
 
-    	$wikis = [];
+        $wikis = [];
 
-    	if(!$this->sitelinks || !in_array('wiki', $this->visible) || !$wikiLinks){
-    		return $wikis;
-    	}
+        if(!$this->sitelinks || !in_array('wiki', $this->visible) || !$wikiLinks){
+            return $wikis;
+        }
 
         foreach ($wikiLinks as $key => $value) {
             if(in_array($key, $this->locales)){
@@ -170,16 +189,14 @@ class Entity
 
 
     /**
-     * Group site links
+     * Make localeMatching but for wikipedia
      *
-     * @param array $links
-     *
-     * @return object
+     * @return array|mixed
      */ 
 
     private function transformWikis(){
 
-    	$output = [];
+        $output = [];
 
         foreach ($this->wikiOriginal as $wiki) {
 
@@ -197,18 +214,18 @@ class Entity
 
 
     /**
-     * Group site links
+     * Clean and mutate claims
      *
-     * @param array $links
+     * @param array $input
      *
-     * @return object
+     * @return array
      */ 
 
-    private function transformClaims(){
+    private function transformClaims($input){
 
         $output = [];
 
-    	foreach ($input as $prop => $claims) {
+        foreach ($input as $prop => $claims) {
             
             $items = [];
 
@@ -250,7 +267,7 @@ class Entity
                 
             }
 
-            $output[$prop] = $claimOutput;
+            $output[$prop] = $items;
 
        }
 
@@ -260,11 +277,9 @@ class Entity
 
 
     /**
-     * Group site links
+     * Return collection of photos parsed from claims and wikipedia articles
      *
-     * @param array $links
-     *
-     * @return object
+     * @return collections
      */ 
 
     private function parsePhotos(){
@@ -273,27 +288,31 @@ class Entity
             $this->photos = collect([]);
         }
 
-    	if(in_array('photos', $this->visible)){
+        if(in_array('photos', $this->visible)){
             $this->parsePhotosFromClaims();
             $this->parsePhotosFromWikis();
-    	}
+        }
 
-    	return $this->photos;
+        return $this->photos;
 
-    }	
+    }   
 
 
     /**
-     * Group site links
+     * Add photo to collection
      *
-     * @param array $links
+     * @param string $url - Path or full url of image
+     * @param string $source - Source of image
+     * @param boolean $isPath - Define its path or not
      *
-     * @return object
+     * @return void
      */ 
 
-    private function pushPhoto($path, $source){
+    private function pushPhoto($url, $source, $isPath = true){
 
-        $url = (new Wikipedia)->image($path);
+        if($isPath){
+            $url = (new Wikipedia)->image($url);
+        }
 
         if(!$this->photos->contains('url', $url)){
 
@@ -308,34 +327,30 @@ class Entity
 
 
     /**
-     * Group site links
+     * Take photos from claims
      *
-     * @param array $links
-     *
-     * @return object
+     * @return void
      */ 
 
     private function parsePhotosFromClaims(){
 
-    	$claims = array_flatten($this->claims);
+        $claims = collect($this->claims)->flatten(1);
 
-    	foreach ($claims as $claim) {
+        foreach ($claims as $claim) {
 
-    		if($claim['type'] != 'commonsMedia'){ continue; }
+            if($claim['type'] != 'commonsMedia'){ continue; }
 
-    		$this->pushPhoto($claim['value'], $claim['prop']);
+            $this->pushPhoto($claim['value'], $claim['prop']);
 
-    	}
+        }
 
     }
 
 
     /**
-     * Group site links
+     * Parse photos from wikipedia articles
      *
-     * @param array $links
-     *
-     * @return object
+     * @return void
      */ 
 
     private function parsePhotosFromWikis(){
@@ -348,7 +363,7 @@ class Entity
 
             if(!$image || !$source){ continue; }
 
-            $this->pushPhoto($image, $source);
+            $this->pushPhoto($image, $source, false);
 
         }
 
@@ -356,11 +371,11 @@ class Entity
 
 
     /**
-     * Group site links
+     * Make visible array of attributes
      *
-     * @param array $links
+     * @param array $data
      *
-     * @return object
+     * @return self
      */ 
 
     public function makeVisible($data){
@@ -373,11 +388,11 @@ class Entity
 
 
     /**
-     * Group site links
+     * Set locales to parse
      *
-     * @param array $links
+     * @param array $data
      *
-     * @return object
+     * @return self
      */ 
 
     public function withLocales($data){
@@ -387,5 +402,27 @@ class Entity
         return $this;
 
     }
+
+
+    /**
+     * Return entity
+     *
+     * @return array
+     */ 
+
+    public function get(){
+
+        $output = [];
+
+        foreach ($this->visible as $item) {
+            if(isset($this->{$item})){
+                $output[$item] = $this->{$item};
+            }
+        }
+
+        return $output;
+
+    }
+
 
 }
