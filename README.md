@@ -30,23 +30,27 @@ php artisan vendor:publish --provider="Nixler\Wikidata\WikidataServiceProvider"
 ## Usage
 
 ```php
+
+use Nixler\Wikidata\Wikidata;
+...
+
 // Retrieving Entities By ID
-$laravel = Wikidata::whereId('Q13634357')->first();
+$laravel = (new Wikidata)->whereId('Q13634357')->first();
 // or by array of IDs
-$companies = Wikidata::whereId(['Q95', 'Q2283'])->get();
+$companies = (new Wikidata)->whereId(['Q95', 'Q2283'])->get();
 
 //Languages
-$laravel = Wikidata::whereId('Q13634357')->languages('en', 'ru')->get();
+$laravel = (new Wikidata)->whereId('Q13634357')->languages('en', 'ru')->get();
 
 //Select Clause
-$laravel = Wikidata::select('id', 'label')->whereId('Q13634357')->first();
+$laravel = (new Wikidata)->select('id', 'label')->whereId('Q13634357')->first();
 //available attributes id, label, description, wiki, type, aliases, sitelinks, claims, photos
 
 //Search By Query
-$search = Wikidata::search('Adele')->get();
+$search = (new Wikidata)->search('Adele')->get();
 
 //Search By Prop
-$adele = Wikidata::where('P345', 'nm2233157')->first();
+$adele = (new Wikidata)->where('P345', 'nm2233157')->first();
 
 ```
 
