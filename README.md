@@ -20,12 +20,6 @@ Next, you should add the WikidataServiceProvider to the providers array of your 
 Nixler\Wikidata\WikidataServiceProvider::class,
 ```
 
-Also, add the Wikidata facade to the aliases array in your app configuration file:
-
-```php
-'Wikidata' => Nixler\Wikidata\WikidataServiceProvider::class,
-```
-
 After registering the Wikidata service provider, you should publish the Wikidata configuration using the  vendor:publish Artisan command. This command will publish the wikidata.php configuration file to your config directory:
 
 ```
