@@ -225,14 +225,17 @@ class Wikidata
 
         $entities = [];
 
+        if(!$this->select){
+            $this->select('id', 'label');
+        }
+
         if(!$this->entities){
             $this->api([]);
         }
 
         foreach ($this->entities as $key => $item) {
 
-            $entity = new Entity($item, $this->select, $this->locales);
-            $entities[] = $entity->get();
+            $entities[] = new Entity($item, $this->select, $this->locales);
 
         }
 
@@ -274,4 +277,19 @@ class Wikidata
 
     }
 
+
+
+    /**
+     * Return ID
+     *
+     * @return array
+     */ 
+
+    public function __toString()
+    {
+        return (string) collect([
+            'id' => $this->id,
+            'label' => $this->label,
+        ])->toJson();
+    }
 }

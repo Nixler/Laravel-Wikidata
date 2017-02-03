@@ -57,3 +57,38 @@ $adele = (new Wikidata)->where('P345', 'nm2233157')->first();
 
 ## Wikidata Data API
 - [MediaWiki API help](https://www.wikidata.org/w/api.php)
+
+
+
+
+
+#Map
+
+for first there should be functionality to add just title, headline, type, wiki, photos
+
+
+Write
+Model has Enitable trait
+We make opperation $model->entity()->fetch('wikidata', 'Q1'); 
+or $model->fetchDataFrom('lastfm', 'Adele');
+or $model->fetchDataFrom('gbooks', 'Some book');
+or $model->fetchDataFrom('tmdb', 'ID');
+or $model->fetchDataFrom('imdb', 'ID');
+or $model->fetchDataFrom('youtube', 'Some song or video');
+entity if not exists it creates new and associates current external IDs
+Then system make update of entity, it fetches all relations and populates entity with data.
+
+Read
+$model->getData([
+	'info' => 'id,type,title,headline,wiki,entities',
+	'links' => 'facebook,twitter',
+	'photos' => 20,
+	'similars' => 5
+]);
+
+takes info (translated), links to profiles in social networks, similars, photos
+in entities it takes structured data such as ['date_of_birth' => 'timestamp']
+
+there should be write opperation file for each type of entity - person, music, book, album, country
+
+Search should be performed this way - entities('country')->where('')

@@ -2,7 +2,9 @@
 
 namespace Nixler\Wikidata;
 
-class Entity
+use JsonSerializable;
+
+class Entity implements JsonSerializable
 {
 
     private $id = null;
@@ -43,8 +45,6 @@ class Entity
 
     }
 
-
-
     /**
      * Fill model with data
      *
@@ -75,6 +75,8 @@ class Entity
 
         $this->photos = $this->parsePhotos();
 
+        $this->social_accounts = $this->parseSocialAccountsFromClaims();
+
     }
 
 
@@ -90,38 +92,19 @@ class Entity
 
     private function localeMatch($input){
 
-        if(empty($input)) return [];
-
         foreach ($input as $key => $item){
 
-            if(is_array(head($item))){
+            $matches = is_array(array_first($item)) ? $this->localeMatch($item) : $item['value'];
 
-                $sub = [];
-
-                foreach ($item as $subitem) {
-                    $sub[] = array_get($subitem, 'value');
-                }
-
-                if(count($this->locales) > 1){
-                    $output[$key] = $sub;
-                } else {
-                    $output = $sub;
-                }
-
+            if(count($this->locales) > 1){
+                $output[$key] = $matches;
             } else {
-
-                if(count($this->locales) > 1){
-                    $output[$key] = $item['value'];
-                } else {
-                    $output = $item['value'];
-                }
-                
-
+                $output = $matches;
             }
             
         }
 
-        return $output;
+        return isset($output) ? $output : [];
     }
 
 
@@ -167,13 +150,13 @@ class Entity
      * @return array
      */ 
 
-    private function parseWikis(){
+    private function parseWikis($sitelinks){
 
-        $wikiLinks = array_get($this->sitelinks, 'wiki');
+        $wikiLinks = array_get($sitelinks, 'wiki');
 
         $wikis = [];
 
-        if(!$this->sitelinks || !in_array('wiki', $this->visible) || !$wikiLinks){
+        if(!$sitelinks || !in_array('wiki', $this->visible) || !$wikiLinks){
             return $wikis;
         }
 
@@ -348,6 +331,30 @@ class Entity
 
 
     /**
+     * Take photos from claims
+     *
+     * @return void
+     */ 
+
+    private function parseSocialAccountsFromClaims(){
+
+        $claims = collect($this->claims)->flatten(1);
+
+        $output = [];
+
+        foreach ($claims as $claim) {
+
+            if($claim['type'] != 'external-id'){ continue; }
+
+            $output[] = $claim;
+
+        }
+
+        return $output;
+    }
+
+
+    /**
      * Parse photos from wikipedia articles
      *
      * @return void
@@ -420,9 +427,71 @@ class Entity
             }
         }
 
-        return $output;
+        return $this;
 
     }
 
+
+    /**
+     * Return ID
+     *
+     * @return array
+     */ 
+
+    public function __get($key)
+    {
+
+        if(isset($this->{$key}) && !is_callable($this->{$key}) && is_string($key)){
+            return  $this->{$key};
+        } elseif(isset($this->{$key}) && is_callable($this->{$key})){
+            return call_user_func($this->{$key});
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Return ID
+     *
+     * @return array
+     */ 
+
+    public function toArray()
+    {
+        $output = [];
+        
+        foreach ($this->visible as $item) {
+            if(isset($this->{$item})){
+                $output[$item] = $this->{$item};
+            }
+        }
+
+        return $output;
+    }
+
+
+    /**
+     * Return ID
+     *
+     * @return array
+     */ 
+
+    public function __toString()
+    {
+        return json_encode($this->toArray());
+    }
+
+
+
+    /**
+     * Return ID
+     *
+     * @return array
+     */ 
+
+    public function jsonSerialize() {
+        return $this->toArray();
+    }
 
 }

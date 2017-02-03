@@ -10,10 +10,12 @@
     }
   ],
   "require": {
-    "php": ">=5.3.0"
+    "php": ">=5.3.0",
+    "guzzlehttp/guzzle": "^6.2",
+    "plank/laravel-mediable": "^6.0",
+    "dimsav/laravel-translatable": "^2.4"
   },
   "require-dev":{
-    "guzzlehttp/guzzle": "^6.2",
     "phpunit/phpunit": "3.7.*@stable"
   },
   "autoload": {
